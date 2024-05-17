@@ -1,0 +1,95 @@
+-- Create the table to store account information
+CREATE TABLE BankAccounts (
+    accNo INT PRIMARY KEY,
+    name VARCHAR(255),
+    password VARCHAR(255),
+    deposit DECIMAL(10, 2),
+    type CHAR(1)
+);
+
+-- Function to create a new account
+CREATE PROCEDURE CreateAccount(
+    IN p_accNo INT,
+    IN p_name VARCHAR(255),
+    IN p_password VARCHAR(255),
+    IN p_deposit DECIMAL(10, 2),
+    IN p_type CHAR(1)
+)
+BEGIN
+    INSERT INTO BankAccounts (accNo, name, password, deposit, type)
+    VALUES (p_accNo, p_name, p_password, p_deposit, p_type);
+END;
+
+-- Function to validate login
+CREATE FUNCTION ValidateLogin(
+    p_accNo INT,
+    p_password VARCHAR(255)
+)
+RETURNS BOOLEAN
+BEGIN
+    DECLARE is_valid BOOLEAN;
+    
+    SELECT EXISTS(
+        SELECT 1 FROM BankAccounts
+        WHERE accNo = p_accNo AND password = p_password
+    ) INTO is_valid;
+    
+    RETURN is_valid;
+END;
+
+-- Function to deposit amount into an account
+CREATE PROCEDURE DepositAmount(
+    IN p_accNo INT,
+    IN p_amount DECIMAL(10, 2)
+)
+BEGIN
+    UPDATE BankAccounts
+    SET deposit = deposit + p_amount
+    WHERE accNo = p_accNo;
+END;
+
+-- Function to withdraw amount from an account
+CREATE PROCEDURE WithdrawAmount(
+    IN p_accNo INT,
+    IN p_amount DECIMAL(10, 2)
+)
+BEGIN
+    UPDATE BankAccounts
+    SET deposit = deposit - p_amount
+    WHERE accNo = p_accNo AND deposit >= p_amount;
+END;
+
+-- Function to display account information
+CREATE PROCEDURE DisplayAccount(
+    IN p_accNo INT
+)
+BEGIN
+    SELECT * FROM BankAccounts WHERE accNo = p_accNo;
+END;
+
+-- Function to display all accounts
+CREATE PROCEDURE DisplayAllAccounts()
+BEGIN
+    SELECT * FROM BankAccounts;
+END;
+
+-- Function to delete an account
+CREATE PROCEDURE DeleteAccount(
+    IN p_accNo INT
+)
+BEGIN
+    DELETE FROM BankAccounts WHERE accNo = p_accNo;
+END;
+
+-- Function to modify an account
+CREATE PROCEDURE ModifyAccount(
+    IN p_accNo INT,
+    IN p_name VARCHAR(255),
+    IN p_type CHAR(1),
+    IN p_deposit DECIMAL(10, 2)
+)
+BEGIN
+    UPDATE BankAccounts
+    SET name = p_name, type = p_type, deposit = p_deposit
+    WHERE accNo = p_accNo;
+END;
