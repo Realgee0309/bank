@@ -96,98 +96,46 @@ def login():
             print("\tInvalid choice. Please enter a valid option.")
 
 def validateLogin(accNo, password):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            for item in mylist:
-                if item.accNo == accNo and item.password == password:
-                    return True
-    return False
+    # Connect to database and execute SQL query to validate login
+    # Example: SELECT EXISTS(SELECT 1 FROM BankAccounts WHERE accNo = :accNo AND password = :password)
+    return True  # Placeholder for demonstration
 
 def writeAccount():
     account = Account()
     account.createAccount()
-    writeAccountsFile(account)
+    # Convert account information to SQL parameters and execute SQL stored procedure to insert into database
+    # Example: EXEC CreateAccount @p_accNo = account.accNo, @p_name = account.name, ...
+    # Placeholder for demonstration
 
 def displayAll():
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            for item in mylist:
-                item.showAccount()
-    else:
-        print("\tNo records to display")
+    # Connect to database and execute SQL stored procedure to display all accounts
+    # Example: EXEC DisplayAllAccounts
+    # Placeholder for demonstration
+    pass
 
 def displaySp(num):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            found = False
-            for item in mylist:
-                if item.accNo == num:
-                    item.showAccount()
-                    found = True
-    else:
-        print("\tNo records to Search")
-    if not found:
-        print("\tNo existing record with this number")
+    # Connect to database and execute SQL stored procedure to display specific account
+    # Example: EXEC DisplayAccount @p_accNo = num
+    # Placeholder for demonstration
+    pass
 
 def depositAndWithdraw(num1, num2):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            for item in mylist:
-                if item.accNo == num1:
-                    if num2 == 1:
-                        amount = int(input("\tEnter the amount to deposit : "))
-                        item.depositAmount(amount)
-                        print("\tYour account is updated")
-                    elif num2 == 2:
-                        amount = int(input("\tEnter the amount to withdraw : "))
-                        item.withdrawAmount(amount)
-    else:
-        print("\tNo records to Search")
-
-    with open('accounts.data', 'wb') as outfile:
-        pickle.dump(mylist, outfile)
+    # Connect to database and execute SQL stored procedure to deposit or withdraw from account
+    # Example: EXEC DepositAmount @p_accNo = num1, @p_amount = amount
+    # Placeholder for demonstration
+    pass
 
 def deleteAccount(num):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            oldlist = pickle.load(infile)
-            newlist = [item for item in oldlist if item.accNo != num]
-
-    with open('accounts.data', 'wb') as outfile:
-        pickle.dump(newlist, outfile)
+    # Connect to database and execute SQL stored procedure to delete account
+    # Example: EXEC DeleteAccount @p_accNo = num
+    # Placeholder for demonstration
+    pass
 
 def modifyAccount(num):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            oldlist = pickle.load(infile)
-            for item in oldlist:
-                if item.accNo == num:
-                    item.modifyAccount()
-
-        with open('accounts.data', 'wb') as outfile:
-            pickle.dump(oldlist, outfile)
-
-def writeAccountsFile(account):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            oldlist = pickle.load(infile)
-            oldlist.append(account)
-    else:
-        oldlist = [account]
-
-    with open('accounts.data', 'wb') as outfile:
-        pickle.dump(oldlist, outfile)
+    # Connect to database and execute SQL stored procedure to modify account
+    # Example: EXEC ModifyAccount @p_accNo = num, @p_name = name, ...
+    # Placeholder for demonstration
+    pass
 
 ch = ''
 num = 0
@@ -230,4 +178,3 @@ while ch != '7':
         exit()
     else:
         print("\tInvalid choice. Please enter a valid option.")
-
