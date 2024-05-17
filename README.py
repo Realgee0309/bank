@@ -8,12 +8,14 @@ class Account:
     def __init__(self):
         self.accNo = 0
         self.name = ''
+        self.password = ''
         self.deposit = 0
         self.type = ''
 
     def createAccount(self):
         self.accNo = random.randint(100000, 999999)
         self.name = input("\tEnter the account holder name: ")
+        self.password = input("\tEnter the password for your account: ")
         self.type = input("\tEnter the type of account [C/S]: ")
         self.deposit = int(input("\tEnter the Initial amount (>=500 for Saving and >=1000 for current): "))
         print("\n\n\n\tAccount Created Successfully")
@@ -63,6 +65,30 @@ def intro():
     print("\t========================")
 
     input()
+
+
+def login():
+    while True:
+        accNo = int(input("\tEnter your account number: "))
+        password = input("\tEnter your password: ")
+
+        # Authenticate user
+        if validateLogin(accNo, password):
+            print("\n\tLogin successful!")
+            return accNo
+        else:
+            print("\n\tInvalid account number or password. Please try again.")
+
+
+def validateLogin(accNo, password):
+    file = pathlib.Path("accounts.data")
+    if file.exists():
+        with open('accounts.data', 'rb') as infile:
+            mylist = pickle.load(infile)
+            for item in mylist:
+                if item.accNo == accNo and item.password == password:
+                    return True
+    return False
 
 
 def writeAccount():
@@ -162,6 +188,8 @@ ch = ''
 num = 0
 intro()
 
+accNo = login()
+
 while ch != '8':
     print("\n")
     print("\tMAIN MENU")
@@ -194,9 +222,4 @@ while ch != '8':
         deleteAccount(num)
     elif ch == '7':
         num = int(input("\tEnter The account No. : "))
-        modifyAccount(num)
-    elif ch == '8':
-        print("\tThanks for using bank management system")
-        break
-    else:
-        print("Invalid choice")
+        modifyAccount
