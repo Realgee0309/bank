@@ -48,7 +48,7 @@ class Account :
 def intro(): 
     print("\n\n") 
     print("\t========================") 
-    print("\t BANK MANAGEMENT SYSTEM") 
+    print("\t BANK SYSTEM") 
     print("\t========================") 
  
     input() 
