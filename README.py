@@ -12,11 +12,12 @@ class Account:
         self.type = ''
 
     def createAccount(self):
-        self.accNo = random.randint(100000, 999999)  # Generate a 6-digit random account number
+        self.accNo = random.randint(100000, 999999)
         self.name = input("\tEnter the account holder name: ")
         self.type = input("\tEnter the type of account [C/S]: ")
         self.deposit = int(input("\tEnter the Initial amount (>=500 for Saving and >=1000 for current): "))
-        print("\n\n\n\tAccount Created")
+        print("\n\n\n\tAccount Created Successfully")
+        print("\tYour Account Number is:", self.accNo)
 
     def showAccount(self):
         print("\tAccount Number : ", self.accNo)
