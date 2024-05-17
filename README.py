@@ -3,7 +3,6 @@ import os
 import random
 import pathlib
 
-
 class Account:
     def __init__(self):
         self.accNo = 0
@@ -24,14 +23,14 @@ class Account:
     def showAccount(self):
         print("\tAccount Number : ", self.accNo)
         print("\tAccount Holder Name : ", self.name)
-        print("\tType of Account", self.type)
+        print("\tType of Account : ", self.type)
         print("\tBalance : ", self.deposit)
 
     def modifyAccount(self):
         print("\tAccount Number : ", self.accNo)
-        self.name = input("\tModify Account Holder Name :")
-        self.type = input("\tModify type of Account :")
-        self.deposit = int(input("\tModify Balance :"))
+        self.name = input("\tModify Account Holder Name : ")
+        self.type = input("\tModify type of Account : ")
+        self.deposit = int(input("\tModify Balance : "))
 
     def depositAmount(self, amount):
         self.deposit += amount
@@ -57,7 +56,6 @@ class Account:
     def getDeposit(self):
         return self.deposit
 
-
 def intro():
     print("\n\n")
     print("\t========================")
@@ -66,19 +64,36 @@ def intro():
 
     input()
 
-
 def login():
     while True:
-        accNo = int(input("\tEnter your account number: "))
-        password = input("\tEnter your password: ")
+        print("\n\tLOGIN MENU")
+        print("\t1. Log in with existing account")
+        print("\t2. Create a new account")
+        print("\t3. Exit")
+        choice = input("\tEnter your choice: ")
 
-        # Authenticate user
-        if validateLogin(accNo, password):
-            print("\n\tLogin successful!")
-            return accNo
+        if choice == '1':
+            accNo = int(input("\tEnter your account number: "))
+            password = input("\tEnter your password: ")
+
+            # Authenticate user
+            if validateLogin(accNo, password):
+                print("\n\tLogin successful!")
+                return accNo
+            else:
+                print("\n\tInvalid account number or password. Please try again.")
+
+        elif choice == '2':
+            writeAccount()  # Create a new account
+            print("\n\tNew account created. Please log in again.")
+            continue
+
+        elif choice == '3':
+            print("\tExiting...")
+            exit()
+
         else:
-            print("\n\tInvalid account number or password. Please try again.")
-
+            print("\tInvalid choice. Please enter a valid option.")
 
 def validateLogin(accNo, password):
     file = pathlib.Path("accounts.data")
@@ -90,12 +105,10 @@ def validateLogin(accNo, password):
                     return True
     return False
 
-
 def writeAccount():
     account = Account()
     account.createAccount()
     writeAccountsFile(account)
-
 
 def displayAll():
     file = pathlib.Path("accounts.data")
@@ -103,10 +116,9 @@ def displayAll():
         with open('accounts.data', 'rb') as infile:
             mylist = pickle.load(infile)
             for item in mylist:
-                print("\t", item.accNo, " ", item.name, " ", item.type, " ", item.deposit)
+                item.showAccount()
     else:
         print("\tNo records to display")
-
 
 def displaySp(num):
     file = pathlib.Path("accounts.data")
@@ -116,13 +128,12 @@ def displaySp(num):
             found = False
             for item in mylist:
                 if item.accNo == num:
-                    print("\tYour account Balance is = ", item.deposit)
+                    item.showAccount()
                     found = True
     else:
         print("\tNo records to Search")
     if not found:
         print("\tNo existing record with this number")
-
 
 def depositAndWithdraw(num1, num2):
     file = pathlib.Path("accounts.data")
@@ -133,7 +144,7 @@ def depositAndWithdraw(num1, num2):
                 if item.accNo == num1:
                     if num2 == 1:
                         amount = int(input("\tEnter the amount to deposit : "))
-                        item.deposit += amount
+                        item.depositAmount(amount)
                         print("\tYour account is updated")
                     elif num2 == 2:
                         amount = int(input("\tEnter the amount to withdraw : "))
@@ -143,7 +154,6 @@ def depositAndWithdraw(num1, num2):
 
     with open('accounts.data', 'wb') as outfile:
         pickle.dump(mylist, outfile)
-
 
 def deleteAccount(num):
     file = pathlib.Path("accounts.data")
@@ -155,7 +165,6 @@ def deleteAccount(num):
     with open('accounts.data', 'wb') as outfile:
         pickle.dump(newlist, outfile)
 
-
 def modifyAccount(num):
     file = pathlib.Path("accounts.data")
     if file.exists():
@@ -163,13 +172,10 @@ def modifyAccount(num):
             oldlist = pickle.load(infile)
             for item in oldlist:
                 if item.accNo == num:
-                    item.name = input("\tEnter the account holder name : ")
-                    item.type = input("\tEnter the account Type : ")
-                    item.deposit = int(input("\tEnter the Amount : "))
+                    item.modifyAccount()
 
         with open('accounts.data', 'wb') as outfile:
             pickle.dump(oldlist, outfile)
-
 
 def writeAccountsFile(account):
     file = pathlib.Path("accounts.data")
@@ -183,43 +189,45 @@ def writeAccountsFile(account):
     with open('accounts.data', 'wb') as outfile:
         pickle.dump(oldlist, outfile)
 
-
 ch = ''
 num = 0
 intro()
 
 accNo = login()
 
-while ch != '8':
+while ch != '7':
     print("\n")
     print("\tMAIN MENU")
-    print("\t1. NEW ACCOUNT")
-    print("\t2. DEPOSIT")
-    print("\t3. WITHDRAW")
-    print("\t4. BALANCE")
-    print("\t5. DISPLAY ACCOUNT LIST")
-    print("\t6. CLOSE ACCOUNT")
-    print("\t7. MODIFY ACCOUNT")
-    print("\t8. EXIT")
-    print("\tSelect Your Option (1-8) ")
+    print("\t1. DEPOSIT")
+    print("\t2. WITHDRAW")
+    print("\t3. BALANCE")
+    print("\t4. DISPLAY ACCOUNT LIST")
+    print("\t5. CLOSE ACCOUNT")
+    print("\t6. MODIFY ACCOUNT")
+    print("\t7. EXIT")
+    print("\tSelect Your Option (1-7) ")
     ch = input("\tEnter your choice : ")
 
     if ch == '1':
-        writeAccount()
-    elif ch == '2':
         num = int(input("\tEnter The account No. : "))
         depositAndWithdraw(num, 1)
-    elif ch == '3':
+    elif ch == '2':
         num = int(input("\tEnter The account No. : "))
         depositAndWithdraw(num, 2)
-    elif ch == '4':
+    elif ch == '3':
         num = int(input("\tEnter The account No. : "))
         displaySp(num)
-    elif ch == '5':
+    elif ch == '4':
         displayAll()
-    elif ch == '6':
+    elif ch == '5':
         num = int(input("\tEnter The account No. : "))
         deleteAccount(num)
-    elif ch == '7':
+    elif ch == '6':
         num = int(input("\tEnter The account No. : "))
-        modifyAccount
+        modifyAccount(num)
+    elif ch == '7':
+        print("\tExiting...")
+        exit()
+    else:
+        print("\tInvalid choice. Please enter a valid option.")
+
