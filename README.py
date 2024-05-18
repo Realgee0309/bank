@@ -1,8 +1,9 @@
-import pickle
-import os
 import random
+import pickle
 import pathlib
+from pymongo import MongoClient
 
+# Define the Account class to represent bank accounts
 class Account:
     def __init__(self):
         self.accNo = 0
@@ -11,6 +12,7 @@ class Account:
         self.deposit = 0
         self.type = ''
 
+    # Method to create a new account
     def createAccount(self):
         self.accNo = random.randint(100000, 999999)
         self.name = input("\tEnter the account holder name: ")
@@ -20,30 +22,36 @@ class Account:
         print("\n\n\n\tAccount Created Successfully")
         print("\tYour Account Number is:", self.accNo)
 
+    # Method to display account details
     def showAccount(self):
         print("\tAccount Number : ", self.accNo)
         print("\tAccount Holder Name : ", self.name)
         print("\tType of Account : ", self.type)
         print("\tBalance : ", self.deposit)
 
+    # Method to modify account details
     def modifyAccount(self):
         print("\tAccount Number : ", self.accNo)
         self.name = input("\tModify Account Holder Name : ")
         self.type = input("\tModify type of Account : ")
         self.deposit = int(input("\tModify Balance : "))
 
+    # Method to deposit money into the account
     def depositAmount(self, amount):
         self.deposit += amount
 
+    # Method to withdraw money from the account
     def withdrawAmount(self, amount):
         if self.deposit >= amount:
             self.deposit -= amount
         else:
             print("\tInsufficient balance")
 
+    # Method to print account details
     def report(self):
         print(self.accNo, " ", self.name, " ", self.type, " ", self.deposit)
 
+    # Getter methods for account attributes
     def getAccountNo(self):
         return self.accNo
 
@@ -56,6 +64,7 @@ class Account:
     def getDeposit(self):
         return self.deposit
 
+# Function to display introduction message
 def intro():
     print("\n\n")
     print("\t========================")
@@ -64,6 +73,7 @@ def intro():
 
     input()
 
+# Function for user login
 def login():
     while True:
         print("\n\tLOGIN MENU")
@@ -95,139 +105,133 @@ def login():
         else:
             print("\tInvalid choice. Please enter a valid option.")
 
+# Function to validate login credentials
 def validateLogin(accNo, password):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            for item in mylist:
-                if item.accNo == accNo and item.password == password:
-                    return True
-    return False
+    result = collection.find_one({"accNo": accNo, "password": password})
+    return result is not None
 
+# Function to create a new account
 def writeAccount():
     account = Account()
     account.createAccount()
     writeAccountsFile(account)
 
+# Function to display details of all accounts
 def displayAll():
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            for item in mylist:
-                item.showAccount()
-    else:
-        print("\tNo records to display")
+    for account in collection.find():
+        print("\tAccount Number : ", account["accNo"])
+        print("\tAccount Holder Name : ", account["name"])
+        print("\tType of Account : ", account["type"])
+        print("\tBalance : ", account["deposit"])
 
+# Function to display details of a specific account
 def displaySp(num):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            found = False
-            for item in mylist:
-                if item.accNo == num:
-                    item.showAccount()
-                    found = True
+    account = collection.find_one({"accNo": num})
+    if account:
+        print("\tAccount Number : ", account["accNo"])
+        print("\tAccount Holder Name : ", account["name"])
+        print("\tType of Account : ", account["type"])
+        print("\tBalance : ", account["deposit"])
     else:
-        print("\tNo records to Search")
-    if not found:
         print("\tNo existing record with this number")
 
+# Function to deposit or withdraw money from an account
 def depositAndWithdraw(num1, num2):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            mylist = pickle.load(infile)
-            for item in mylist:
-                if item.accNo == num1:
-                    if num2 == 1:
-                        amount = int(input("\tEnter the amount to deposit : "))
-                        item.depositAmount(amount)
-                        print("\tYour account is updated")
-                    elif num2 == 2:
-                        amount = int(input("\tEnter the amount to withdraw : "))
-                        item.withdrawAmount(amount)
+    account = collection.find_one({"accNo": num1})
+    if account:
+        if num2 == 1:
+            amount = int(input("\tEnter the amount to deposit : "))
+            account["deposit"] += amount
+            collection.update_one({"accNo": num1}, {"$set": {"deposit": account["deposit"]}})
+            print("\tYour account is updated")
+        elif num2 == 2:
+            amount = int(input("\tEnter the amount to withdraw : "))
+            if account["deposit"] >= amount:
+                account["deposit"] -= amount
+                collection.update_one({"accNo": num1}, {"$set": {"deposit": account["deposit"]}})
+            else:
+                print("\tInsufficient balance")
     else:
         print("\tNo records to Search")
 
-    with open('accounts.data', 'wb') as outfile:
-        pickle.dump(mylist, outfile)
-
+# Function to delete an account
 def deleteAccount(num):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            oldlist = pickle.load(infile)
-            newlist = [item for item in oldlist if item.accNo != num]
+    result = collection.delete_one({"accNo": num})
+    if result.deleted_count == 1:
+        print("\tAccount deleted successfully")
+    else:
+        print("\tNo existing record with this number")
 
-    with open('accounts.data', 'wb') as outfile:
-        pickle.dump(newlist, outfile)
-
+# Function to modify details of an account
 def modifyAccount(num):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            oldlist = pickle.load(infile)
-            for item in oldlist:
-                if item.accNo == num:
-                    item.modifyAccount()
+    account = collection.find_one({"accNo": num})
+    if account:
+        print("\tAccount Number : ", account["accNo"])
+        name = input("\tModify Account Holder Name : ")
+        acc_type = input("\tModify type of Account : ")
+        deposit = int
+                print("\tModify Balance : ")
+        new_values = {"$set": {"name": name, "type": acc_type, "deposit": deposit}}
+        collection.update_one({"accNo": num}, new_values)
+        print("\tAccount details modified successfully")
+    else:
+        print("\tNo existing record with this number")
 
-        with open('accounts.data', 'wb') as outfile:
-            pickle.dump(oldlist, outfile)
-
+# Function to write account details to MongoDB
 def writeAccountsFile(account):
-    file = pathlib.Path("accounts.data")
-    if file.exists():
-        with open('accounts.data', 'rb') as infile:
-            oldlist = pickle.load(infile)
-            oldlist.append(account)
-    else:
-        oldlist = [account]
+    account_data = {
+        "accNo": account.accNo,
+        "name": account.name,
+        "password": account.password,
+        "type": account.type,
+        "deposit": account.deposit
+    }
+    collection.insert_one(account_data)
 
-    with open('accounts.data', 'wb') as outfile:
-        pickle.dump(oldlist, outfile)
+# MongoDB URI and client initialization
+uri = "mongodb+srv://saltrickpajon:<password>@cluster0.gytjppx.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+client = MongoClient(uri)
+db = client["bank_system"]
+collection = db["accounts"]
 
-ch = ''
-num = 0
-intro()
+# Main function
+def main():
+    intro()
+    accNo = login()
+    while True:
+        print("\n")
+        print("\tMAIN MENU")
+        print("\t1. DEPOSIT")
+        print("\t2. WITHDRAW")
+        print("\t3. BALANCE")
+        print("\t4. DISPLAY ACCOUNT LIST")
+        print("\t5. CLOSE ACCOUNT")
+        print("\t6. MODIFY ACCOUNT")
+        print("\t7. EXIT")
+        print("\tSelect Your Option (1-7) ")
+        ch = input("\tEnter your choice : ")
+        if ch == '1':
+            num = int(input("\tEnter The account No. : "))
+            depositAndWithdraw(num, 1)
+        elif ch == '2':
+            num = int(input("\tEnter The account No. : "))
+            depositAndWithdraw(num, 2)
+        elif ch == '3':
+            num = int(input("\tEnter The account No. : "))
+            displaySp(num)
+        elif ch == '4':
+            displayAll()
+        elif ch == '5':
+            num = int(input("\tEnter The account No. : "))
+            deleteAccount(num)
+        elif ch == '6':
+            num = int(input("\tEnter The account No. : "))
+            modifyAccount(num)
+        elif ch == '7':
+            print("\tExiting...")
+            exit()
+        else:
+            print("\tInvalid choice. Please enter a valid option.")
 
-accNo = login()
-
-while ch != '7':
-    print("\n")
-    print("\tMAIN MENU")
-    print("\t1. DEPOSIT")
-    print("\t2. WITHDRAW")
-    print("\t3. BALANCE")
-    print("\t4. DISPLAY ACCOUNT LIST")
-    print("\t5. CLOSE ACCOUNT")
-    print("\t6. MODIFY ACCOUNT")
-    print("\t7. EXIT")
-    print("\tSelect Your Option (1-7) ")
-    ch = input("\tEnter your choice : ")
-
-    if ch == '1':
-        num = int(input("\tEnter The account No. : "))
-        depositAndWithdraw(num, 1)
-    elif ch == '2':
-        num = int(input("\tEnter The account No. : "))
-        depositAndWithdraw(num, 2)
-    elif ch == '3':
-        num = int(input("\tEnter The account No. : "))
-        displaySp(num)
-    elif ch == '4':
-        displayAll()
-    elif ch == '5':
-        num = int(input("\tEnter The account No. : "))
-        deleteAccount(num)
-    elif ch == '6':
-        num = int(input("\tEnter The account No. : "))
-        modifyAccount(num)
-    elif ch == '7':
-        print("\tExiting...")
-        exit()
-    else:
-        print("\tInvalid choice. Please enter a valid option.")
-
+if __name__ == "__main__":
+    main()
