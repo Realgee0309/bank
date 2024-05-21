@@ -272,4 +272,72 @@ if __name__ == "__main__":
         choice = input("\tEnter your choice: ")
 
         if choice == '1':
-            accNo = input("\tEnter
+                        accNo = input("\tEnter your account number: ")
+            password = input("\tEnter your password: ")
+            account = bank.login(accNo, password)
+            if account:
+                while True:
+                    print("\n\tBANKING MENU")
+                    print("\t1. Deposit")
+                    print("\t2. Withdraw")
+                    print("\t3. Transfer")
+                    print("\t4. Check Balance")
+                    print("\t5. Transaction History")
+                    print("\t6. Close Account")
+                    print("\t7. Log out")
+                    choice = input("\tEnter your choice: ")
+
+                    if choice == '1':
+                        amount = float(input("\tEnter the amount to deposit: "))
+                        bank.deposit(account, amount)
+                        print("\tDeposit successful.")
+
+                    elif choice == '2':
+                        amount = float(input("\tEnter the amount to withdraw: "))
+                        bank.withdraw(account, amount)
+                        print("\tWithdrawal successful.")
+
+                    elif choice == '3':
+                        recipient_accNo = input("\tEnter recipient's account number: ")
+                        amount = float(input("\tEnter the amount to transfer: "))
+                        bank.transfer(account.accNo, recipient_accNo, amount)
+                        print("\tTransfer successful.")
+
+                    elif choice == '4':
+                        print("\tYour current balance is: $", account.getBalance())
+
+                    elif choice == '5':
+                        print("\tTransaction History:")
+                        transactions = account.getTransactionHistory()
+                        for transaction in transactions:
+                            print("\tDate:", transaction[3], "| Type:", transaction[2], "| Amount:", transaction[1])
+
+                    elif choice == '6':
+                        confirm = input("\tAre you sure you want to close your account? (yes/no): ")
+                        if confirm.lower() == 'yes':
+                            bank.closeAccount(account)
+                            print("\tAccount closed successfully.")
+                            break  # Exit to main menu after closing account
+                        else:
+                            print("\tAccount closure cancelled.")
+
+                    elif choice == '7':
+                        print("\tLogging out...")
+                        break  # Exit to main menu after logging out
+
+                    else:
+                        print("\tInvalid choice. Please enter a valid option.")
+
+        elif choice == '2':
+            bank.createAccount()
+
+        elif choice == '3':
+            print("\tExiting...")
+            break
+
+        else:
+            print("\tInvalid choice. Please enter a valid option.")
+
+if __name__ == "__main__":
+    main()
+
